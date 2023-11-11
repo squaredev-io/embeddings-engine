@@ -1,8 +1,9 @@
 from pydantic import BaseModel
-from typing import Optional, List, Any
+from typing import Optional, List
 from sqlalchemy import Column
 from sqlmodel import Field, SQLModel, JSON
 from pgvector.sqlalchemy import Vector
+import uuid
 
 
 class Document(SQLModel, table=True):
@@ -16,6 +17,14 @@ class Document(SQLModel, table=True):
     filters: dict = Field(default=None, sa_column=Column(JSON))
 
 
+class SearchResponse(BaseModel):
+    id: int
+    cosine_similarity: float
+    content: str
+    collection: str
+    source: str
+
+
 class DeleteDocumentRequest(BaseModel):
     collection: str
     source: str
@@ -24,8 +33,8 @@ class DeleteDocumentRequest(BaseModel):
 class SearchRequest(BaseModel):
     query: str
     collection: str
-    limit: int
-    filters: Optional[dict]
+    limit: Optional[int] = 5
+    filters: Optional[dict] = None
 
 
 class RecommendationRequest(BaseModel):
