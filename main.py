@@ -25,7 +25,9 @@ settings = get_settings()
 
 @app.on_event("startup")
 def on_startup():
-    print("EDW STO MAIN")
+    with Session(engine) as session:
+        statement = "CREATE EXTENSION IF NOT EXISTS vector;"
+        results = session.execute(text(statement))
     SQLModel.metadata.create_all(engine)
 
 
@@ -46,7 +48,6 @@ async def insert_document(documents: List[Document]):
     with Session(engine) as session:
         session.bulk_save_objects(documents)
         session.commit()
-        # session.refresh(documents)
     return documents
 
 

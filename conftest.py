@@ -3,26 +3,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 from settings import get_settings
 from sqlmodel import Field, SQLModel, create_engine, text, Session
-import logging
+from main import app
+from fastapi.testclient import TestClient
 
-logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
 
-@pytest.fixture(scope="module")
-def db():
+# This fixture is used to create a new database for each test session and drop it after the tests are done.
+@pytest.fixture(name="client", scope="session")
+def client_fixture():
     database_url = settings.DATABASE_URL
     engine = create_engine(database_url, echo=True)
+    SQLModel.metadata.create_all(engine)
 
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Create the tables
-    logger.debug("apo prin")
-    yield session  # this is where the testing happens
-    print("erxesai edw mwrh arxidia?")
-
-    # Teardown: drop the tables and close the connection
+    client = TestClient(app)
+    yield client
     SQLModel.metadata.drop_all(engine)
-    session.close()
+    app.dependency_overrides.clear()

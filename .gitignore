@@ -2,3 +2,6 @@
 __pycache__
 .env
 local_cache
+postgresql
+**pytest_cache
+pytest.log

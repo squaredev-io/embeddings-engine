@@ -1,13 +1,8 @@
 from fastapi.testclient import TestClient
-from main import app
-import pytest
 from schemas import Document, SearchRequest
-import random
-
-client = TestClient(app)
 
 
-def test_insert_document():
+def test_insert_document(client: TestClient):
     sample_document_1 = Document(
         id=0,
         content="This is a sample document",
@@ -37,7 +32,7 @@ def test_insert_document():
     assert response.json()[0]["collection"] == sample_document_1.collection
 
 
-def test_search():
+def test_search(client: TestClient):
     # Define a sample SearchRequest
     sample_request = SearchRequest(
         query="This is a sample query", collection="test_collection"
