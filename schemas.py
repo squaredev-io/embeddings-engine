@@ -31,6 +31,10 @@ class DeleteDocumentRequest(BaseModel):
     source: str
 
 
+class DeleteDocumentResponse(BaseModel):
+    ok: bool
+
+
 class SearchRequest(BaseModel):
     query: str
     collection: str

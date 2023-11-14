@@ -56,3 +56,22 @@ def test_recommend(client: TestClient):
     assert response.status_code == 200
     assert len(response.json())
     assert response.json()[0]["content"] == "This is a sample document"
+
+
+def test_delete(client: TestClient):
+    sample_request = SearchRequest(
+        query="This is a sample query", collection="test_collection"
+    )
+    sample_delete_request = {
+        "collection": "test_collection",
+        "source": "example.txt",
+    }
+
+    response = client.post("/text/delete", json=sample_delete_request)
+
+    assert response.status_code == 200
+
+    response = client.post("/text/search", json=sample_request.dict())
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1

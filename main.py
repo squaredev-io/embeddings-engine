@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from typing import List
 from schemas import (
+    DeleteDocumentResponse,
     Document,
     DeleteDocumentRequest,
     RecommendationStrategy,
@@ -9,7 +10,7 @@ from schemas import (
     SearchResponse,
 )
 from settings import get_settings
-from sqlmodel import Field, SQLModel, create_engine, text, Session
+from sqlmodel import Field, SQLModel, create_engine, select, text, Session
 from fastembed.embedding import FlagEmbedding as Embedding
 from typing import List
 import numpy as np
@@ -52,10 +53,21 @@ async def insert_document(documents: List[Document]):
     return documents
 
 
-@app.post("/text/delete", response_model=List[Document], tags=["Text"])
+@app.post("/text/delete", response_model=DeleteDocumentResponse, tags=["Text"])
 async def delete_document(request: DeleteDocumentRequest):
-    # Implement your logic here
-    return []
+    with Session(engine) as session:
+        statement = (
+            select(Document)
+            .where(Document.collection == request.collection)
+            .where(Document.source == request.source)
+        )
+
+        results = session.exec(statement)
+        for result in results:
+            session.delete(result)
+        session.commit()
+
+    return {"ok": True}
 
 
 @app.post("/text/search", response_model=List[SearchResponse], tags=["Text"])
@@ -161,5 +173,3 @@ async def recommend(request: RecommendationRequest):
     ]
 
     return search_response
-
-    return []
