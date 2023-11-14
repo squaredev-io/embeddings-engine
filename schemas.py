@@ -1,3 +1,4 @@
+from enum import Enum
 from pydantic import BaseModel
 from typing import Optional, List
 from sqlalchemy import Column
@@ -37,8 +38,14 @@ class SearchRequest(BaseModel):
     filters: Optional[dict] = None
 
 
+class RecommendationStrategy(str, Enum):
+    average_vector = "average_vector"
+
+
 class RecommendationRequest(BaseModel):
     collection: str
-    strategy: str = "average_vector"
-    limit: int
-    filters: Optional[dict]
+    positive: List[str]
+    negative: List[str] = []
+    strategy: RecommendationStrategy = RecommendationStrategy.average_vector
+    limit: int = 5
+    filters: Optional[dict] = {}

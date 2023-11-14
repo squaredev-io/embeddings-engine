@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from schemas import Document, SearchRequest
+from schemas import Document, RecommendationRequest, SearchRequest
 
 
 def test_insert_document(client: TestClient):
@@ -38,10 +38,21 @@ def test_search(client: TestClient):
         query="This is a sample query", collection="test_collection"
     )
 
-    # Send a POST request to the "/text/search" endpoint with the sample SearchRequest
     response = client.post("/text/search", json=sample_request.dict())
 
-    # Check if the response status code is 200
+    assert response.status_code == 200
+    assert len(response.json())
+    assert response.json()[0]["content"] == "This is a sample document"
+
+
+def test_recommend(client: TestClient):
+    sample_request = RecommendationRequest(
+        positive=["This is a sample query"],
+        collection="test_collection",
+    )
+
+    response = client.post("/text/recommend", json=sample_request.dict())
+
     assert response.status_code == 200
     assert len(response.json())
     assert response.json()[0]["content"] == "This is a sample document"

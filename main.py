@@ -3,6 +3,7 @@ from typing import List
 from schemas import (
     Document,
     DeleteDocumentRequest,
+    RecommendationStrategy,
     SearchRequest,
     RecommendationRequest,
     SearchResponse,
@@ -101,5 +102,64 @@ async def search(request: SearchRequest):
 
 @app.post("/text/recommend", response_model=List[Document], tags=["Text"])
 async def recommend(request: RecommendationRequest):
-    # Implement your logic here
+    embedding_model = Embedding(
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        max_length=512,
+    )
+    positive_embeddings: List[np.ndarray] = list(
+        embedding_model.embed(request.positive)
+    )
+    negative_embeddings: List[np.ndarray] = list(
+        embedding_model.embed(request.negative)
+    )
+
+    recommendation_vector: List[float] = []  # populated according to request.strategy
+
+    if request.strategy == RecommendationStrategy.average_vector.value:
+        positive_embeddings = np.array(positive_embeddings).mean(axis=0).tolist()
+        # fill with zeros if no negative embeddings are provided
+        negative_embeddings = (
+            np.array(negative_embeddings).mean(axis=0).tolist()
+            if len(negative_embeddings)
+            else np.zeros(384).tolist()
+        )
+
+        recommendation_vector = (
+            (np.array(positive_embeddings) + np.array(positive_embeddings))
+            - np.array(negative_embeddings)
+        ).tolist()
+
+    statement = """
+            SELECT 1 - (embeddings <=> :embeddings) AS cosine_similarity, content, collection, id, source
+            FROM document
+            WHERE collection = :collection
+        """
+
+    with Session(engine) as session:
+        results = session.execute(
+            text(statement),
+            {
+                "collection": request.collection,
+                "embeddings": "["
+                + str(",".join(str(e) for e in recommendation_vector))
+                + "]",
+            },
+        )
+        session.commit()
+
+    search_response = [
+        SearchResponse(
+            **{
+                "cosine_similarity": r[0],
+                "content": r[1],
+                "collection": r[2],
+                "id": r[3],
+                "source": r[4],
+            }
+        )
+        for r in results
+    ]
+
+    return search_response
+
     return []
