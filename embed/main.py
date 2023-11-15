@@ -30,6 +30,8 @@ def on_startup():
     with Session(engine) as session:
         statement = "CREATE EXTENSION IF NOT EXISTS vector;"
         results = session.execute(text(statement))
+        session.commit()
+
     SQLModel.metadata.create_all(engine)
 
 
