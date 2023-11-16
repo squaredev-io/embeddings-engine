@@ -53,3 +53,7 @@ class RecommendationRequest(BaseModel):
     strategy: RecommendationStrategy = RecommendationStrategy.average_vector
     limit: int = 5
     filters: Optional[dict] = {}
+
+
+class Test(BaseModel):
+    name = "Charis"
