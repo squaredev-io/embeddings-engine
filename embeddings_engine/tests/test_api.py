@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from embed.schemas import Document, RecommendationRequest, SearchRequest
+from embeddings_engine.schemas import Document, RecommendationRequest, SearchRequest
 
 
 def test_insert_document(client: TestClient):
