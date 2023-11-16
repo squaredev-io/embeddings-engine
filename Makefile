@@ -1,6 +1,6 @@
 run:
 	@echo Starting FastAPI server...
-	@uvicorn embed.main:app --reload
+	@uvicorn embeddings-engine.main:app --reload
 
 test:
 	@echo Running tests...
