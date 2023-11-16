@@ -6,6 +6,6 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ./embeddings-engine /code/app
+COPY ./embeddings_engine /code/app
 
-CMD ["uvicorn", "embeddings-engine.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "embeddings_engine.main:app", "--host", "0.0.0.0", "--port", "80"]

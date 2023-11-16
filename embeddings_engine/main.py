@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from typing import List
-from embed.schemas import (
+from embeddings_engine.schemas import (
     DeleteDocumentResponse,
     Document,
     DeleteDocumentRequest,
@@ -9,7 +9,7 @@ from embed.schemas import (
     RecommendationRequest,
     SearchResponse,
 )
-from embed.settings import get_settings
+from embeddings_engine.settings import get_settings
 from sqlmodel import Field, SQLModel, create_engine, select, text, Session
 from fastembed.embedding import FlagEmbedding as Embedding
 from typing import List
